@@ -38,6 +38,7 @@ import {
   DeleteProduct,
   DisableProduct,
   EnableProduct,
+  GetCategories,
   GetProduct,
   GetProducts,
   UpdateProduct,
@@ -113,6 +114,10 @@ export default function Api() {
                 <DeleteProduct />
                 <EnableProduct />
                 <DisableProduct />
+              </ApiResource>
+
+              <ApiResource name="Categories" id="categories">
+                <GetCategories />
               </ApiResource>
 
               <ApiResource name="Files" id="files">
