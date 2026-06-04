@@ -117,16 +117,15 @@ describe("Product Edit Scenario", type: :system, js: true) do
     uncheck "Use the same content for all versions"
     find(:combo_box, "Select a version").click
     select_combo_box_option "Version 2", from: "Select a version"
-    rich_text_editor = find("[contenteditable=true]")
-    rich_text_editor.send_keys "Text!"
+    expect(page).to have_text("Enter the content you want to sell.")
     save_change
 
     expect(product.rich_contents.alive.count).to eq 0
     variants = product.alive_variants
     rich_content[0]["attrs"] = a_hash_including({ "id" => variants.first.alive_product_files.sole.external_id })
     expect(variants.first.rich_contents.alive.sole.description).to match rich_content
-    rich_content[1]["content"] = [{ "type" => "text", "text" => "Text!" }]
-    expect(variants.last.rich_contents.alive.sole.description).to match rich_content
+    expect(variants.last.alive_rich_contents).to be_empty
+    expect(variants.last.alive_product_files).to be_empty
   end
 
   it "allows creating and deleting an upsell in the product description" do
