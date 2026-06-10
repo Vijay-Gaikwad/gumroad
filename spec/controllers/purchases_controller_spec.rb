@@ -983,6 +983,23 @@ describe PurchasesController, :vcr do
         expect(response).to be_successful
       end
 
+      context "when the order has no successful purchases" do
+        let(:purchase) { create(:failed_purchase, email: "test@example.com") }
+
+        before do
+          order = create(:order, purchases: [purchase])
+          create(:charge, order:, purchases: [purchase], seller: purchase.seller)
+        end
+
+        it "404s instead of enqueueing a receipt job" do
+          expect do
+            post :resend_receipt, params: { id: purchase.external_id }
+          end.to raise_error(ActionController::RoutingError)
+
+          expect(SendPurchaseReceiptJob.jobs.size).to eq(0)
+        end
+      end
+
       describe "gift purchase" do
         before do
           @product = create(:product_with_pdf_file)
@@ -1596,6 +1613,24 @@ describe PurchasesController, :vcr do
         it "trims whitespace from email input" do
           get :receipt, params: { id: purchase.external_id, email: " test@example.com " }
           expect(response).to be_successful
+        end
+      end
+
+      context "when the order has no successful purchases" do
+        # A charge-backed purchase promotes the receipt's chargeable to its Order;
+        # when that Order has no successful purchase, the orderable has no email and
+        # the receipt used to 500 (gumroad-private#483 / Sentry GUMROAD-4D).
+        let(:purchase) { create(:failed_purchase, email: "test@example.com") }
+
+        before do
+          order = create(:order, purchases: [purchase])
+          create(:charge, order:, purchases: [purchase], seller: purchase.seller)
+        end
+
+        it "404s instead of raising NoMethodError" do
+          expect do
+            get :receipt, params: { id: purchase.external_id, email: "test@example.com" }
+          end.to raise_error(ActionController::RoutingError)
         end
       end
 
