@@ -3,19 +3,14 @@ import * as React from "react";
 
 import { PASSKEY_ADD_ERROR, registerPasskey } from "$app/utils/passkeyRegistration";
 import { asyncVoid } from "$app/utils/promise";
-import { ResponseError } from "$app/utils/request";
+import { assertResponseError, request, ResponseError } from "$app/utils/request";
 import { isPasskeySupported } from "$app/utils/webauthn";
 
 import { Button } from "$app/components/Button";
 import { showAlert } from "$app/components/server-components/Alert";
 import { Alert } from "$app/components/ui/Alert";
-
-const SNOOZE_KEY_PREFIX = "passkeySetupPromptSnoozedUntil";
-const SNOOZE_MS = 90 * 24 * 60 * 60 * 1000;
-
-export const PasskeySetupPrompt = ({ show, accountId }: { show: boolean; accountId: number }) => {
+export const PasskeySetupPrompt = ({ show }: { show: boolean }) => {
   const { authenticity_token, passkeys } = usePage<{ authenticity_token: string; passkeys?: unknown }>().props;
-  const snoozeKey = `${SNOOZE_KEY_PREFIX}:${accountId}`;
   const [supported, setSupported] = React.useState(false);
   const [dismissed, setDismissed] = React.useState(false);
   const [adding, setAdding] = React.useState(false);
@@ -24,22 +19,24 @@ export const PasskeySetupPrompt = ({ show, accountId }: { show: boolean; account
 
   const onPasskeyManagementPage = passkeys !== undefined;
 
-  if (
-    !show ||
-    !supported ||
-    onPasskeyManagementPage ||
-    dismissed ||
-    Number(localStorage.getItem(snoozeKey)) > Date.now()
-  ) {
+  if (!show || !supported || onPasskeyManagementPage || dismissed) {
     return null;
   }
 
-  const snooze = () => localStorage.setItem(snoozeKey, String(Date.now() + SNOOZE_MS));
-
-  const dismiss = () => {
-    snooze();
+  const dismiss = asyncVoid(async () => {
     setDismissed(true);
-  };
+    try {
+      await request({
+        url: Routes.dismiss_passkey_prompt_path(),
+        method: "POST",
+        accept: "json",
+        headers: { "X-CSRF-Token": authenticity_token },
+      });
+    } catch (e) {
+      assertResponseError(e);
+      showAlert(e.message, "error");
+    }
+  });
 
   const handleSetup = asyncVoid(async () => {
     setAdding(true);

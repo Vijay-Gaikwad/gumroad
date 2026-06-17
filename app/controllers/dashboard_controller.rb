@@ -15,9 +15,21 @@ class DashboardController < Sellers::BaseController
     else
       LargeSeller.create_if_warranted(current_seller)
       presenter = CreatorHomePresenter.new(pundit_user)
+      props_data = presenter.creator_home_props.merge(
+        show_passkey_prompt: current_user.passkey_prompt_eligible? && current_user.role_owner_for?(current_seller)
+      )
+
       render inertia: "Dashboard/Index",
-             props: { creator_home: presenter.creator_home_props }
+             props: { creator_home: props_data }
     end
+  end
+
+  def dismiss_passkey_prompt
+    authorize :dashboard, :index?
+
+    current_user.update!(passkey_prompt_dismissed_at: Time.current)
+
+    head :ok
   end
 
   def customers_count

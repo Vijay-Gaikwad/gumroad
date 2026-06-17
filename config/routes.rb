@@ -892,6 +892,7 @@ Rails.application.routes.draw do
     get "/dashboard/monthly_recurring_revenue" => "dashboard#monthly_recurring_revenue", as: :dashboard_monthly_recurring_revenue
     get "/dashboard/download_tax_form" => "dashboard#download_tax_form", as: :dashboard_download_tax_form
     post "/dashboard/dismiss_getting_started_checklist" => "dashboard#dismiss_getting_started_checklist", as: :dashboard_dismiss_getting_started_checklist
+    post "/dashboard/dismiss_passkey_prompt", to: "dashboard#dismiss_passkey_prompt", as: :dismiss_passkey_prompt
 
     get "/products", to: "links#index", as: :products
 

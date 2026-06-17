@@ -36,7 +36,7 @@ describe DashboardController, type: :controller, inertia: true do
 
       get :index
 
-      expect(inertia.props[:prompt_passkey_setup]).to be(false)
+      expect(inertia.props.dig(:creator_home, :show_passkey_prompt)).to be(false)
     end
 
     it "does not surface the passkey setup prompt while impersonating" do
@@ -46,7 +46,7 @@ describe DashboardController, type: :controller, inertia: true do
 
       get :index
 
-      expect(inertia.props[:prompt_passkey_setup]).to be(false)
+      expect(inertia.props.dig(:creator_home, :show_passkey_prompt)).to be(false)
     end
 
     context "when seller has no activity" do

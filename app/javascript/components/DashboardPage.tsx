@@ -20,6 +20,7 @@ import { GettingStartedIconProps } from "$app/components/icons/getting-started/G
 import { MakeAccountIcon } from "$app/components/icons/getting-started/MakeAccountIcon";
 import { useLoggedInUser } from "$app/components/LoggedInUser";
 import { Modal } from "$app/components/Modal";
+import { PasskeySetupPrompt } from "$app/components/PasskeySetupPrompt";
 import { ProductIconCell } from "$app/components/ProductsPage/ProductIconCell";
 import { DownloadTaxFormsPopover } from "$app/components/server-components/DashboardPage/DownloadTaxFormsPopover";
 import { Stats } from "$app/components/Stats";
@@ -70,6 +71,7 @@ export type DashboardPageProps = {
   tax_forms: Record<number, string>;
   show_1099_download_notice: boolean;
   tax_center_enabled: boolean;
+  show_passkey_prompt: boolean;
 };
 type TableProps = { sales: ProductRow[] };
 
@@ -311,6 +313,7 @@ export const DashboardPage = ({
   tax_forms,
   show_1099_download_notice,
   tax_center_enabled,
+  show_passkey_prompt,
 }: DashboardPageProps) => {
   const loggedInUser = useLoggedInUser();
   const [gettingStartedMinimized, setGettingStartedMinimized] = React.useState<boolean>(false);
@@ -338,6 +341,7 @@ export const DashboardPage = ({
 
   return (
     <div>
+      <PasskeySetupPrompt show={show_passkey_prompt} />
       <PageHeader
         title="Dashboard"
         actions={

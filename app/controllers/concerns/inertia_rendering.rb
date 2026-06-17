@@ -14,10 +14,7 @@ module InertiaRendering
     end
 
     inertia_share if: :user_signed_in? do
-      {
-        current_user: current_user_props(current_user, impersonated_user),
-        prompt_passkey_setup: show_passkey_setup_prompt?
-      }
+      { current_user: current_user_props(current_user, impersonated_user) }
     end
   end
 

@@ -37,6 +37,15 @@ class User < ApplicationRecord
 
   MIN_SALES_CENTS_VALUE_FOR_AI_PRODUCT_GENERATION = 10_000
 
+  PASSKEY_PROMPT_COOLDOWN_PERIOD = 14.days
+
+  def passkey_prompt_eligible?
+    webauthn_credentials.blank? && (
+      passkey_prompt_dismissed_at.blank? ||
+      passkey_prompt_dismissed_at < PASSKEY_PROMPT_COOLDOWN_PERIOD.ago
+    )
+  end
+
   has_many :affiliate_credits, foreign_key: "affiliate_user_id"
   has_many :affiliate_partial_refunds, foreign_key: "affiliate_user_id"
   has_many :affiliate_requests, foreign_key: :seller_id
